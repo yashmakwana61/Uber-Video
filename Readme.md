@@ -223,3 +223,59 @@ curl -X POST http://your-api-domain/users/login \
 curl -X GET http://your-api-domain/users/profile \
      -H "Authorization: Bearer <your_jwt_token>"
 ```
+
+## Logout Endpoint
+
+### Endpoint Details
+- **URL:** `/users/logout`
+- **Method:** GET
+- **Description:** Logs out the authenticated user
+- **Authentication:** Required (Bearer Token)
+
+### Request Headers
+```
+Authorization: Bearer <jwt_token>
+```
+
+### Successful Logout Response
+- **Status Code:** 200 OK
+- **Response Body:**
+```json
+{
+  "message": "Logged out successfully"
+}
+```
+
+## Token Blacklisting
+
+### Mechanism
+- Logout invalidates the current JWT token
+- Blacklisted tokens are stored in the database
+- Blacklisted tokens expire after 24 hours
+- Attempts to use a blacklisted token will be rejected
+
+### Token Verification Process
+1. Check if token exists in request (cookie or authorization header)
+2. Verify token is not blacklisted
+3. Validate token signature
+4. Retrieve user information
+5. Attach user to request for protected routes
+
+## Error Responses for Authentication
+- **401 Unauthorized**:
+  - Invalid or expired token
+  - Token not found
+  - Blacklisted token
+
+## Example Curl Requests
+
+### Logout
+```bash
+curl -X GET http://your-api-domain/users/logout \
+     -H "Authorization: Bearer <your_jwt_token>"
+```
+
+## Security Notes
+- Tokens are invalidated immediately upon logout
+- Each logout creates a temporary blacklist entry
+- Tokens automatically expire from blacklist after 24 hours
