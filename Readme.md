@@ -279,3 +279,158 @@ curl -X GET http://your-api-domain/users/logout \
 - Tokens are invalidated immediately upon logout
 - Each logout creates a temporary blacklist entry
 - Tokens automatically expire from blacklist after 24 hours
+
+
+
+# Captain Registration Endpoint
+
+## Endpoint Details
+- **URL:** `/captain/register`
+- **Method:** POST
+- **Description:** Registers a new captain in the system
+
+## Request Body
+```json
+{
+  "fullname": {
+    "firstname": "John",
+    "lastname": "Doe"
+  },
+  "email": "johndoe@example.com",
+  "password": "securepassword123",
+  "vehicle": {
+    "color": "Blue",
+    "plate": "ABC123",
+    "capacity": 4,
+    "vehicleType": "car"
+  }
+}
+```
+
+## Field Validations
+
+### Fullname
+- `firstname`:
+  - Required
+  - Minimum length: 3 characters
+  - Error message: "Name must be at least 3 characters long"
+
+- `lastname`:
+  - Optional
+  - Minimum length: 3 characters if provided
+  - Error message: "Lastname must be at least 3 characters long"
+
+### Email
+- Required
+- Must be a valid email format
+- Unique (no duplicate emails allowed)
+- Error message: "Invalid Email"
+
+### Password
+- Required
+- Minimum length: 6 characters
+- Error message: "Password must be at least 6 characters long"
+
+### Vehicle Details
+- `color`:
+  - Required
+  - Minimum length: 3 characters
+  - Error message: "Color must be at least 3 characters long"
+
+- `plate`:
+  - Required
+  - Minimum length: 3 characters
+  - Error message: "Plate must be at least 3 characters long"
+
+- `capacity`:
+  - Required
+  - Minimum value: 1
+  - Must be an integer
+  - Error message: "Capacity must be at least 1"
+
+- `vehicleType`:
+  - Required
+  - Allowed values: 'car', 'motorcycle', 'auto'
+  - Error message: "Invalid vehicle type"
+
+## Successful Registration Response
+- **Status Code:** 201 Created
+- **Response Body:**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "captain": {
+    "_id": "uniqueMongoDBObjectId",
+    "fullname": {
+      "firstname": "John",
+      "lastname": "Doe"
+    },
+    "email": "johndoe@example.com",
+    "status": "inactive",
+    "vehicle": {
+      "color": "Blue",
+      "plate": "ABC123",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  }
+}
+```
+
+## Error Responses
+
+### Validation Errors
+- **Status Code:** 400 Bad Request
+- **Response Body:**
+```json
+{
+  "errors": [
+    {
+      "msg": "Invalid Email",
+      "param": "email",
+      "location": "body"
+    }
+  ]
+}
+```
+
+### Duplicate Email Error
+- **Status Code:** 400 Bad Request
+- **Response Body:**
+```json
+{
+  "message": "Captain already exist"
+}
+```
+
+## Additional Notes
+- Passwords are hashed before storing in the database
+- A JWT token is generated upon successful registration
+- Initial captain status is set to "inactive"
+- Token expires after 24 hours
+
+## Example Curl Request
+```bash
+curl -X POST http://your-api-domain/captain/register \
+     -H "Content-Type: application/json" \
+     -d '{
+           "fullname": {
+             "firstname": "John", 
+             "lastname": "Doe"
+           },
+           "email": "johndoe@example.com",
+           "password": "securepassword123",
+           "vehicle": {
+             "color": "Blue",
+             "plate": "ABC123",
+             "capacity": 4,
+             "vehicleType": "car"
+           }
+         }'
+```
+
+## Security Considerations
+- Email is stored in lowercase
+- Passwords are never stored in plain text
+- Unique email constraint prevents duplicate registrations
+- JWT token provides authentication mechanism
