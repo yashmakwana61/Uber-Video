@@ -434,3 +434,138 @@ curl -X POST http://your-api-domain/captain/register \
 - Passwords are never stored in plain text
 - Unique email constraint prevents duplicate registrations
 - JWT token provides authentication mechanism
+
+I'll create comprehensive documentation for the captain authentication routes and functionality based on the provided code. I'll structure this as a Markdown document covering the key endpoints and their details.
+
+# Captain Authentication API Documentation
+
+## Overview
+This documentation covers the authentication routes and functionality for captain registration, login, profile retrieval, and logout in the transportation management system.
+
+## Endpoints
+
+### 1. Captain Registration
+- **Route:** `/captain/register`
+- **Method:** `POST`
+- **Description:** Register a new captain account
+
+#### Request Body
+```json
+{
+  "fullname": {
+    "firstname": "John",
+    "lastname": "Doe"
+  },
+  "email": "captain@example.com",
+  "password": "securePassword123",
+  "vehicle": {
+    "color": "Blue",
+    "plate": "ABC123",
+    "capacity": 4,
+    "vehicleType": "car"
+  }
+}
+```
+
+#### Validation Rules
+- `email`: Must be a valid email address
+- `fullname.firstname`: Minimum 3 characters long
+- `password`: Minimum 6 characters long
+- `vehicle.color`: Minimum 3 characters long
+- `vehicle.plate`: Minimum 3 characters long
+- `vehicle.capacity`: Minimum 1
+- `vehicle.vehicleType`: Must be 'car', 'motorcycle', or 'auto'
+
+#### Responses
+- **Success (201):** 
+  ```json
+  {
+    "token": "jwt_authentication_token",
+    "captain": {
+      // Captain details
+    }
+  }
+  ```
+- **Error (400):** Validation errors or captain already exists
+  ```json
+  {
+    "errors": [/* Validation error details */],
+    "message": "Captain already exist"
+  }
+  ```
+
+### 2. Captain Login
+- **Route:** `/captain/login`
+- **Method:** `POST`
+- **Description:** Authenticate a captain and generate an authentication token
+
+#### Request Body
+```json
+{
+  "email": "captain@example.com",
+  "password": "securePassword123"
+}
+```
+
+#### Validation Rules
+- `email`: Must be a valid email address
+- `password`: Minimum 6 characters long
+
+#### Responses
+- **Success (200):** 
+  ```json
+  {
+    "token": "jwt_authentication_token",
+    "captain": {
+      // Captain details
+    }
+  }
+  ```
+- **Error (401):** Invalid credentials
+  ```json
+  {
+    "message": "Invalid email or password"
+  }
+  ```
+
+### 3. Get Captain Profile
+- **Route:** `/captain/profile`
+- **Method:** `GET`
+- **Description:** Retrieve the authenticated captain's profile
+- **Authentication Required:** Yes (JWT token)
+
+#### Responses
+- **Success (200):** 
+  ```json
+  {
+    "captain": {
+      // Captain profile details
+    }
+  }
+  ```
+- **Error (401):** Unauthorized
+  ```json
+  {
+    "message": "Unauthorized"
+  }
+  ```
+
+### 4. Captain Logout
+- **Route:** `/captain/logout`
+- **Method:** `GET`
+- **Description:** Log out the authenticated captain
+- **Authentication Required:** Yes (JWT token)
+
+#### Responses
+- **Success (200):** 
+  ```json
+  {
+    "message": "Logged out successfully"
+  }
+  ```
+
+## Authentication Mechanism
+- JSON Web Tokens (JWT) are used for authentication
+- Tokens expire after 24 hours
+- Tokens are validated using a secret key
+- Blacklisted tokens are tracked to prevent reuse
