@@ -569,3 +569,160 @@ This documentation covers the authentication routes and functionality for captai
 - Tokens expire after 24 hours
 - Tokens are validated using a secret key
 - Blacklisted tokens are tracked to prevent reuse
+
+
+I'll create a comprehensive documentation for the Login and Register functionality based on the provided code files.
+
+# User Authentication Documentation
+
+## Overview
+This documentation covers the User Authentication system, including registration and login processes for a Node.js application using Express, Mongoose, and JWT.
+
+## Endpoints
+
+### 1. User Registration
+**Endpoint:** `POST /register`
+
+#### Request Body
+```json
+{
+  "fullname": {
+    "firstname": "John",
+    "lastname": "Doe" // Optional
+  },
+  "email": "john.doe@example.com",
+  "password": "password123"
+}
+```
+
+#### Validation Rules
+- `firstname`: 
+  - Required
+  - Minimum length: 3 characters
+- `email`: 
+  - Must be a valid email format
+- `password`:
+  - Minimum length: 6 characters
+
+#### Possible Responses
+- **201 Created**: Successful registration
+  ```json
+  {
+    "token": "jwt_token",
+    "user": {
+      "_id": "user_id",
+      "fullname": {
+        "firstname": "John",
+        "lastname": "Doe"
+      },
+      "email": "john.doe@example.com"
+    }
+  }
+  ```
+
+- **400 Bad Request**: 
+  - Validation errors
+  - Email already exists
+  ```json
+  {
+    "errors": [
+      {
+        "msg": "Invalid Email",
+        "param": "email"
+      },
+      {
+        "msg": "Name must be atleast 3 characters long",
+        "param": "fullname.firstname"
+      }
+    ]
+  }
+  ```
+
+### 2. User Login
+**Endpoint:** `POST /login`
+
+#### Request Body
+```json
+{
+  "email": "john.doe@example.com",
+  "password": "password123"
+}
+```
+
+#### Validation Rules
+- `email`: Must be a valid email format
+- `password`: Minimum length of 6 characters
+
+#### Possible Responses
+- **200 OK**: Successful login
+  ```json
+  {
+    "token": "jwt_token",
+    "user": {
+      "_id": "user_id",
+      "fullname": {
+        "firstname": "John",
+        "lastname": "Doe"
+      },
+      "email": "john.doe@example.com"
+    }
+  }
+  ```
+
+- **400 Bad Request**: Validation errors
+- **401 Unauthorized**: Invalid email or password
+
+### 3. Get User Profile
+**Endpoint:** `GET /profile`
+**Authentication Required**: Yes (JWT Token)
+
+#### Possible Responses
+- **200 OK**: User profile details
+  ```json
+  {
+    "_id": "user_id",
+    "fullname": {
+      "firstname": "John",
+      "lastname": "Doe"
+    },
+    "email": "john.doe@example.com"
+  }
+  ```
+- **401 Unauthorized**: Invalid or missing token
+
+### 4. Logout
+**Endpoint:** `GET /logout`
+**Authentication Required**: Yes (JWT Token)
+
+#### Possible Responses
+- **200 OK**: Successful logout
+  ```json
+  {
+    "message": "Logged out successfully"
+  }
+  ```
+- **401 Unauthorized**: Invalid or missing token
+
+## Authentication Mechanism
+- Passwords are hashed using bcrypt before storage
+- JWT (JSON Web Tokens) are used for authentication
+- Token validity: 24 hours
+- Tokens are stored in cookies and can also be sent via Authorization header
+- Logout mechanism blacklists the current token
+
+## Security Features
+- Password hashing
+- Token-based authentication
+- Token blacklisting on logout
+- Input validation
+- Unique email constraint
+
+## Error Handling
+- Comprehensive validation errors
+- Specific error messages for authentication failures
+- Protection against duplicate registrations
+
+## Notes
+- Ensure `JWT_SECRET` is set in environment variables
+- Recommended to use HTTPS in production
+- Implement additional security measures like rate limiting and CSRF protection
