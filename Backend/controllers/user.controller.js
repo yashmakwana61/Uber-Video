@@ -59,5 +59,11 @@ module.exports.logoutUser = async (req,res,next) =>{
     res.clearCookie('token');
     const token = req.cookies.token || req.headers.authorization.split(' ')[1];
     await blacklistTokenModel.create({ token });
-    res.status(200).json({message: 'Logged out successfully'});
+    try{
+        res.status(200).json({message: 'Logged out successfully'});
+    }
+    catch (error) {
+        console.error("Error during logout:", error); // Log the error to the console!
+        res.status(500).json({ error: 'Internal Server Error' }); // Send an appropriate error response
+    }
 }

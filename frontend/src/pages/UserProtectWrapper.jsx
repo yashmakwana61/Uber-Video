@@ -1,6 +1,5 @@
-import React, {useContext} from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { UserDataContext } from "../context/userContext";
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 
 const UserProtectWrapper = ({
@@ -10,9 +9,13 @@ const UserProtectWrapper = ({
     const token = localStorage.getItem('token')
     const navigate = useNavigate();
 
-    if(!token) {
-        navigate('/login');
-    }
+    console.log(token);
+
+    useEffect(()=>{
+        if(!token) {
+            navigate('/login');
+        }
+    },[ token ]);
 
     return (
         <>
